@@ -1,58 +1,30 @@
-# ✈️ Flight Route Data Normalizer
+# SUCCESS | Flight Intelligence Aggregator
 
-An advanced backend-powered aviation intelligence platform that aggregates flight route data, normalizes pricing across carriers, and calculates smart value scores based on price per kilometer.
+[![Deploy Status](https://img.shields.io/badge/Deploy-Success-brightgreen.svg)](#)
+[![Frontend](https://img.shields.io/badge/Frontend-Vercel-black.svg)](https://flight-route-normalize.vercel.app/)
+[![Backend](https://img.shields.io/badge/Backend-Render-blue.svg)](#)
+[![Cache](https://img.shields.io/badge/Cache-Redis-red.svg)](#)
 
-Built for scalable travel-tech and analytics use cases.
+**Live Application:** [Launch Flight Intelligence](https://flight-route-normalize.vercel.app/)
 
----
+## Overview
+The **Flight Intelligence Aggregator** is a lightweight, high-performance web service designed to retrieve, normalize, and cache real-time global aviation data. Built with a focus on clean architecture and premium, minimal UI design, this system efficiently bridges third-party flight APIs with a zero-dependency frontend.
 
-## 🚀 Features
-
-### Flight Search Engine
-- Search routes by origin, destination, and date
-- REST API architecture using Express.js
-
-### Multi-Provider Aggregation
-- Designed to support multiple flight data providers
-- Unified response formatting across carriers
-
-### Smart Data Normalization
-- Standardizes airline, pricing, stops, duration, and route metrics
-
-### Value Scoring Engine
-- Calculates **price per kilometer**
-- Helps identify best-value routes
-
-### Redis Caching
-- Speeds up repeated searches
-- Reduces external API calls
-
-### Frontend Dashboard
-- Real-time aviation dashboard UI included
-
----
-
-## 🛠 Tech Stack
-
-- Node.js
-- Express.js
-- Redis
-- HTML / CSS / JavaScript
-- REST APIs
+This project serves as a technical showcase of rate-limit management, data normalization, and decoupled micro-architecture deployment.
 
 ---
 
 ## 📁 Project Structure
 
-```bash
+```text
 flight-route-normalize/
-│── client/             # Frontend dashboard
-│── src/
-│   ├── routes/
-│   ├── controllers/
-│   ├── services/
-│   ├── providers/
-│   ├── middleware/
-│   └── server.js
-│── package.json
-│── README.md
+├── client/             # Frontend dashboard (Zero-dependency vanilla HTML/CSS/JS)
+├── src/                # Backend Node.js/Express application
+│   ├── routes/         # API route definitions
+│   ├── controllers/    # Request handling and response formatting
+│   ├── services/       # Core business logic (Normalization, Aggregation)
+│   ├── providers/      # External API integrations (AviationStack, etc.)
+│   ├── middleware/     # Rate limiting, Redis caching, Error handling
+│   └── server.js       # Application entry point and server initialization
+├── package.json        # Project metadata, scripts, and dependencies
+└── README.md           # Project documentation
