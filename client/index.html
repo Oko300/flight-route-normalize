@@ -1,23 +1,199 @@
-FlightRoute
-LIVE DATA STREAM
-// Route Intelligence Query
-Flight IATA
-BA113
-Departure Airport
-LHR
-Arrival Airport
-JFK
-▶ Search
-Total Flights
-—
-Active / Airborne
-—
-Scheduled
-—
-Delayed
-—
-Flight Intelligence
-—
-✈
-Awaiting Query
-Enter a flight number, departure, or arrival IATA code above
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SUCCESS | Flight Intelligence</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #050505;
+            --surface-color: #111111;
+            --border-color: #222222;
+            --accent-color: #ffffff;
+            --text-secondary: #888888;
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--accent-color); 
+            margin: 0;
+            display: flex; 
+            justify-content: center; 
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container { 
+            width: 100%;
+            max-width: 480px; 
+            background: var(--surface-color);
+            padding: 40px; 
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+
+        .header { margin-bottom: 40px; }
+        .header h1 { font-weight: 600; font-size: 1.2rem; letter-spacing: 0.2rem; margin: 0; text-transform: uppercase; }
+        .header p { color: var(--text-secondary); font-size: 0.8rem; margin-top: 5px; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1rem; color: var(--text-secondary); margin-bottom: 8px; }
+        
+        input { 
+            width: 100%; 
+            background: transparent; 
+            border: none; 
+            border-bottom: 1px solid var(--border-color); 
+            color: #fff; 
+            padding: 10px 0; 
+            font-size: 1rem; 
+            outline: none; 
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+        }
+        input:focus { border-bottom-color: var(--accent-color); }
+
+        button { 
+            width: 100%; 
+            background: var(--accent-color); 
+            color: #000; 
+            border: none; 
+            padding: 15px; 
+            margin-top: 10px;
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.1rem; 
+            cursor: pointer; 
+            transition: opacity 0.3s;
+        }
+        button:hover { opacity: 0.8; }
+
+        .results { 
+            margin-top: 40px; 
+            padding-top: 20px; 
+            border-top: 1px solid var(--border-color); 
+        }
+        
+        .data-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+            margin-top: 20px;
+        }
+
+        .data-point { font-size: 0.8rem; }
+        .data-label { color: var(--text-secondary); display: block; margin-bottom: 4px; }
+        .data-value { font-weight: 600; }
+
+        #status-msg { font-size: 0.8rem; color: var(--text-secondary); margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>SUCCESS</h1>
+            <p>Flight Intelligence Aggregator</p>
+        </div>
+        
+        <div class="form-group">
+            <label>Flight IATA</label>
+            <input type="text" id="flight_iata" placeholder="e.g. BA113">
+        </div>
+        
+        <div class="form-group">
+            <label>Departure Airport</label>
+            <input type="text" id="dep_iata" placeholder="LHR">
+        </div>
+        
+        <div class="form-group">
+            <label>Arrival Airport</label>
+            <input type="text" id="arr_iata" placeholder="JFK">
+        </div>
+        
+        <button id="searchBtn">Execute Search</button>
+
+        <div id="status-msg">System Awaiting Query</div>
+
+        <div class="results" id="resultsArea" style="display: none;">
+            <div class="data-grid">
+                <div class="data-point">
+                    <span class="data-label">Results</span>
+                    <span class="data-value" id="totalCount">—</span>
+                </div>
+                <div class="data-point">
+                    <span class="data-label">Airline</span>
+                    <span class="data-value" id="airlineName">—</span>
+                </div>
+                <div class="data-point">
+                    <span class="data-label">Route</span>
+                    <span class="data-value" id="routePath">—</span>
+                </div>
+                <div class="data-point">
+                    <span class="data-label">Status</span>
+                    <span class="data-value" id="flightStatus">—</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Your Verified Render URL
+        const API_BASE_URL = "https://flight-route-normalize.onrender.com";
+
+        document.getElementById('searchBtn').addEventListener('click', async () => {
+            const btn = document.getElementById('searchBtn');
+            const statusMsg = document.getElementById('status-msg');
+            const resultsArea = document.getElementById('resultsArea');
+            
+            const query = {
+                flight_iata: document.getElementById('flight_iata').value,
+                dep_iata: document.getElementById('dep_iata').value,
+                arr_iata: document.getElementById('arr_iata').value
+            };
+
+            // Basic Validation
+            if (!query.flight_iata && !query.dep_iata && !query.arr_iata) {
+                statusMsg.innerText = "Error: Please provide search parameters.";
+                return;
+            }
+
+            try {
+                btn.disabled = true;
+                btn.innerText = "Querying...";
+                statusMsg.innerText = "Connecting to SUCCESS Intelligence Node...";
+
+                const params = new URLSearchParams();
+                if (query.flight_iata) params.append('flight_iata', query.flight_iata);
+                if (query.dep_iata) params.append('dep_iata', query.dep_iata);
+                if (query.arr_iata) params.append('arr_iata', query.arr_iata);
+
+                const response = await fetch(`${API_BASE_URL}/api/flights?${params}`);
+                const result = await response.json();
+
+                if (result.success && result.data.length > 0) {
+                    const data = result.data[0];
+                    document.getElementById('totalCount').innerText = result.data.length;
+                    document.getElementById('airlineName').innerText = data.airline;
+                    document.getElementById('routePath').innerText = `${data.departure.iata} → ${data.arrival.iata}`;
+                    document.getElementById('flightStatus').innerText = data.status.toUpperCase();
+                    
+                    resultsArea.style.display = 'block';
+                    statusMsg.innerText = "Data Normalization Complete.";
+                } else {
+                    resultsArea.style.display = 'none';
+                    statusMsg.innerText = "No flight data found.";
+                }
+            } catch (err) {
+                statusMsg.innerText = "Service Error: Check Render logs.";
+                console.error(err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Execute Search";
+            }
+        });
+    </script>
+</body>
+</html>
